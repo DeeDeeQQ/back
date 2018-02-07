@@ -59,16 +59,62 @@ function actionCreateDir()
     redirect(toUrl('/files/list?path=' . urlencode($newDir)));
 }
 
+function actionDeleteDir()
+{
+    $dir = urldecode($_GET['path']);
+
+    rmdir("$dir");
+
+    redirect(toUrl('/files/list?path=' . urlencode(pathinfo($dir, PATHINFO_DIRNAME))));
+}
+
+function actionDeleteFile()
+{
+    $file = urldecode($_GET['path']);
+    unlink("$file");
+
+    redirect(toUrl('/files/list?path=' . dirname($file)));
+}
+
 function actionUploadFile()
 {
     if (empty($_FILES)) {
         return render('files/upload-file', ['path' => $_GET['path']]);
     }
 
-    $fileData = $_FILES['file'];
+//    $fileData = $_FILES['file'];
+//
+//    $file = "{$_POST['path']}/{$fileData['name']}";
+//    move_uploaded_file($fileData['tmp_name'], $file);
 
-    $file = "{$_POST['path']}/{$fileData['name']}";
-    move_uploaded_file($fileData['tmp_name'], $file);
+    echo "<pre>";
+    print_r($_FILES);
+    echo "</pre>";
 
-    redirect(toUrl('/files/view?path=' . urlencode($file)));
+    if ($_FILES['file']) {
+        $file_ary = reArrayFiles($_FILES['file']);
+
+        foreach ($file_ary as $file) {
+            $files = "{$_POST['path']}/{$file['name']}";
+            move_uploaded_file($file['tmp_name'], $files);
+        }
+    }
+
+    redirect(toUrl('/files/list?path=' . urlencode($_POST['path'])));
 }
+
+function reArrayFiles(&$file_post) {
+
+    $file_ary = array();
+    $file_count = count($file_post['name']);
+    $file_keys = array_keys($file_post);
+
+    for ($i=0; $i<$file_count; $i++) {
+        foreach ($file_keys as $key) {
+            $file_ary[$i][$key] = $file_post[$key][$i];
+        }
+    }
+
+    return $file_ary;
+}
+
