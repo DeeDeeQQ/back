@@ -19,10 +19,16 @@
             <i class="fa <?= $item['is_dir'] ? 'fa-folder' : 'fa-file' ?>"></i>
             <?= $item['name'] ?>
         </a>
-        <a href="<?= $item['is_dir'] ? toUrl('/files/deleteDir?path='. urlencode($currentDir . '/' . $item['name'])) : toUrl('/files/deleteFile?path='. urlencode($currentDir . '/' . $item['name'])) ?>">
-            <i class="far fa-trash-alt"></i>
-        </a>
-
+        <?php if($item['name'] !== '.' && $item['name'] !== '..') : ?>
+            <a href="<?= $item['is_dir'] ? toUrl('/files/deleteDir?path='. urlencode($currentDir . '/' . $item['name'])) : toUrl('/files/deleteFile?path='. urlencode($currentDir . '/' . $item['name'])) ?>">
+                <i class="far fa-trash-alt"></i>
+            </a>
+            <?php if($item['is_dir'] == 0) :?>
+                <a href="<?= toUrl('/files/changeFile?path=' . urlencode($currentDir . '/' . $item['name'])) ?> ">
+                    <i class="far fa-edit"></i>
+                </a>
+            <?php endif; ?>
+        <?php endif; ?>
     </li>
 <?php endforeach; ?>
 </ul>

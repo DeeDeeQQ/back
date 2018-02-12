@@ -63,7 +63,7 @@ function actionDeleteDir()
 {
     $dir = urldecode($_GET['path']);
 
-    rmdir("$dir");
+    delFolder($dir);
 
     redirect(toUrl('/files/list?path=' . urlencode(pathinfo($dir, PATHINFO_DIRNAME))));
 }
@@ -93,7 +93,6 @@ function actionUploadFile()
 
     if ($_FILES['file']) {
         $file_ary = reArrayFiles($_FILES['file']);
-
         foreach ($file_ary as $file) {
             $files = "{$_POST['path']}/{$file['name']}";
             move_uploaded_file($file['tmp_name'], $files);
@@ -101,6 +100,27 @@ function actionUploadFile()
     }
 
     redirect(toUrl('/files/list?path=' . urlencode($_POST['path'])));
+}
+
+function actionChangeFile()
+{
+    if ($_POST){
+        $fileContent = $_POST['text'];
+        $fileName = $_POST['file'];
+        file_put_contents($fileName,$fileContent);
+
+        redirect(toUrl('/files/list?path=' . dirname($fileName)));
+    }
+    $file = urldecode($_GET['path']);
+    $fileText = file_get_contents($file);
+    $convertedText = mb_convert_encoding($fileText,"utf-8");
+
+    return render('files/change', [
+        'content' => $convertedText,
+        'file' => $file,
+        'back' => toUrl('/files/list?path=' . dirname($file))
+    ]);
+
 }
 
 function reArrayFiles(&$file_post) {
@@ -117,4 +137,11 @@ function reArrayFiles(&$file_post) {
 
     return $file_ary;
 }
-
+function delFolder($dir)
+{
+    $files = array_diff(scandir($dir), array('.','..'));
+    foreach ($files as $file) {
+        (is_dir("$dir/$file")) ? delFolder("$dir/$file") : unlink("$dir/$file");
+    }
+    return rmdir($dir);
+}
