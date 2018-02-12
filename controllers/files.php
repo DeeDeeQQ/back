@@ -120,7 +120,6 @@ function actionChangeFile()
         'file' => $file,
         'back' => toUrl('/files/list?path=' . dirname($file))
     ]);
-
 }
 
 function reArrayFiles(&$file_post) {

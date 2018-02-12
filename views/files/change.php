@@ -7,7 +7,6 @@
  */
 
 ?>
-
 <h3><?= $file ?></h3>
 <p><a href="<?= $back ?>">Go back</a></p>
 <?= var_dump($file) ?>
